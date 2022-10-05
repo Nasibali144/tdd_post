@@ -5,6 +5,7 @@ import 'package:tdd_post/domain/repositories/post_base_repository.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:tdd_post/domain/usecases/base_usecase.dart';
+import 'package:tdd_post/domain/usecases/delete_post_usecase.dart';
 import 'package:tdd_post/domain/usecases/get_all_post_usecase.dart';
 import 'get_all_post_usecase_test.mocks.dart';
 
@@ -14,27 +15,27 @@ class PostBaseRepositoryTest extends Mock implements PostBaseRepository{}
 
 void main() {
   late MockPostBaseRepositoryTest mockRepository;
-  late GetAllPostUseCase useCase;
+  late DeletePostUseCase useCase;
 
   setUp(() {
     mockRepository = MockPostBaseRepositoryTest();
-    useCase = GetAllPostUseCase(mockRepository);
+    useCase = DeletePostUseCase(mockRepository);
   });
 
-  final postList = [Post(id: "1", userId: 1, title: "Test", body: "test")];
+  const id = "01";
 
   test(
     'should get trivia from the repository',
         () async {
       // arrange
-      when(mockRepository.getAllPost())
-          .thenAnswer((_) async => Right(postList));
+      when(mockRepository.deletePost(id))
+          .thenAnswer((_) async => const Right(true));
       // act
-      final result = await useCase(NoParams());
+      final result = await useCase(const DeleteParams(id: id));
 
       // assert
-      expect(result, Right(postList));
-      verify(mockRepository.getAllPost());
+      expect(result, const Right(true));
+      verify(mockRepository.deletePost(id));
       verifyNoMoreInteractions(mockRepository);
     },
   );
