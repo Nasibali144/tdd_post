@@ -4,6 +4,11 @@ abstract class PostState extends Equatable {
   const PostState();
 }
 
+class Empty extends PostState {
+  @override
+  List<Object> get props => [];
+}
+
 class Loading extends PostState {
   @override
   List<Object> get props => [];
@@ -28,21 +33,34 @@ class GetAllPostSuccessState extends PostState {
 }
 
 class GetOnePostSuccessState extends PostState {
+  final Post post;
+
+  const GetOnePostSuccessState({required this.post});
   @override
-  List<Object> get props => [];
+  List<Object> get props => [post];
 }
 
 class CreatePostSuccessState extends PostState {
+  final Post post;
+
+  const CreatePostSuccessState({required this.post});
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [post];
 }
 
 class EditPostSuccessState extends PostState {
+  final Post post;
+
+  const EditPostSuccessState({required this.post});
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [post];
 }
 
 class DeletePostSuccessState extends PostState {
+
+
   @override
   List<Object> get props => [];
 }

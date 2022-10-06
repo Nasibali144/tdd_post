@@ -15,6 +15,8 @@ abstract class PostLocalDataSource {
   Future<void>  cacheOneUpdatePost(PostModel post);
 
   Future<void>  cacheOneDeletePost(String id);
+
+  Future<PostModel>  getOnePost(String id);
 }
 
 class PostLocalDataSourceImpl implements PostLocalDataSource {
@@ -88,5 +90,12 @@ class PostLocalDataSourceImpl implements PostLocalDataSource {
         json.encode(toListJson(list)),
       );
     }
+  }
+
+  @override
+  Future<PostModel> getOnePost(String id) async {
+    final jsonString = sharedPreferences.getString(CACHED_LIST_POST);
+    List<PostModel> list = await Future.value(parseListPostFromJson(json.decode(jsonString!)));
+    return list.firstWhere((element) => element.id == id);
   }
 }

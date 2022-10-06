@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:tdd_post/core/error/exception.dart';
 import 'package:tdd_post/core/error/failures.dart';
 import 'package:tdd_post/core/network/network_info.dart';
@@ -77,6 +78,20 @@ class PostRepositoryImp implements PostBaseRepository {
         final remotePost = await remoteDataSource.editPost(post.toJson(), post.id);
         localDataSource.cacheOneUpdatePost(post);
         return Right(remotePost);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, PostModel>> getOnePost(String id) async {
+    if(await info.isConnected) {
+      try {
+        var result = await localDataSource.getOnePost(id);
+        return Right(result);
       } on ServerException {
         return Left(ServerFailure());
       }
