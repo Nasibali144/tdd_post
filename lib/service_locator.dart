@@ -12,6 +12,7 @@ import 'package:tdd_post/domain/usecases/get_all_post_usecase.dart';
 import 'package:tdd_post/presentation/blocs/navigation/navigation_bloc.dart';
 import 'package:tdd_post/presentation/blocs/post/post_bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:tdd_post/presentation/pages/home_page.dart';
 import 'core/network/network_info.dart';
 import 'domain/usecases/get_one_post_usecase.dart';
 
@@ -28,7 +29,7 @@ Future<void> init() async {
     deletePostUseCase: locator(),
   ));
   
-  locator.registerFactory(() => NavigationBloc(currentPage: "/"));
+  locator.registerFactory(() => NavigationBloc(currentPage: HomePage.id));
   
   // use case
   locator.registerLazySingleton(() => GetAllPostUseCase(locator()));

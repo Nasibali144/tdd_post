@@ -49,7 +49,6 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   }
 
   Future<void> getAllPost(GetAllPostEvent event, Emitter<PostState> emitter) async {
-    debugPrint("getAllPost method work I");
     emitter(Loading());
     final failureOrTrivia = await getAllPostUseCase(NoParams());
     failureOrTrivia.fold(
@@ -79,12 +78,10 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   Future<void> deletePost(DeletePostEvent event, Emitter<PostState> emitter) async {
     emitter(Loading());
     final failureOrTrivia = await deletePostUseCase(DeleteParams(id: event.id));
-    debugPrint("deletePost method work I: ${failureOrTrivia.isRight()}");
     failureOrTrivia.fold(
           (failure) => emitter(Error(message: _mapFailureToMessage(failure))),
           (post) => emitter(DeletePostSuccessState()),
     );
-    debugPrint("deletePost method work II");
   }
 
   String _mapFailureToMessage(Failure failure) {

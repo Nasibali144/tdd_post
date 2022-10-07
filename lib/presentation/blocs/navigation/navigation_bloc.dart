@@ -9,6 +9,7 @@ part 'navigation_state.dart';
 class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
   NavigationBloc({required String currentPage}) : super(NavigationInitial(currentPage: currentPage)) {
     on<OpenEvent>(open);
+    on<BackEvent>(back);
   }
 
   void open(OpenEvent event, Emitter<NavigationState> emit) {

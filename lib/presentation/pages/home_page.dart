@@ -1,44 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:tdd_post/domain/entities/post_entity.dart';
 import 'package:tdd_post/presentation/blocs/navigation/navigation_bloc.dart';
 import 'package:tdd_post/presentation/blocs/post/post_bloc.dart';
 import 'package:tdd_post/presentation/pages/detail_page.dart';
-import 'package:tdd_post/service_locator.dart';
 
 class HomePage extends StatelessWidget {
+  static const id = "/home_page";
   const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var navigationBloc = context.read<NavigationBloc>();
 
-
-    return BlocProvider(
-      create: (_) => locator<PostBloc>(),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Posts Bloc"),
-        ),
-        body: Stack(
-          children: const [
-            PostListView(),
-            LoadingView(),
-          ],
-        ),
-        floatingActionButton: BlocListener<NavigationBloc, NavigationState>(
-          listener: (context, state) {
-            if(state is OpenSuccessState) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => DetailPage()));
-            }
-          },
-          child: FloatingActionButton(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Posts Bloc"),
+      ),
+      body: Stack(
+        children: const [
+          PostListView(),
+          LoadingView(),
+        ],
+      ),
+      floatingActionButton: BlocConsumer(
+        bloc: navigationBloc,
+        listener: (context, state) {
+          if(state is OpenSuccessState) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              print("Navigator.pushNamed(context, state.nextPage);");
+              Navigator.pushNamed(context, state.nextPage);
+            });
+          }
+        },
+        builder: (context, state) {
+          return FloatingActionButton(
             onPressed: () {
-              context.read<NavigationBloc>().add(const OpenEvent(page: "detail", data: {"page": "detail"}));
+              navigationBloc.add(const OpenEvent(page: DetailPage.id, data: {"status": Status.create}));
+              debugPrint("Navigator worked and post bloc is closed: ${context.read<PostBloc>().isClosed}");
             },
             child: const Icon(Icons.add),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -75,16 +80,14 @@ class PostListView extends StatelessWidget {
     return BlocConsumer<PostBloc, PostState>(
       listener: (context, state) {
 
-
-        if(state is Loading) {
-          print("object: Loading");
-        }
+        if(state is Loading) {}
 
         if(state is DeletePostSuccessState) {
           context.read<PostBloc>().add(GetAllPostEvent());
         }
+
         if(state is Error) {
-          print(state.message);
+          print("ERROR: ${state.message}");
         }
       },
       buildWhen: (previous, current) {
@@ -121,7 +124,10 @@ class ItemPostView extends StatelessWidget {
         motion: const ScrollMotion(),
         children: [
           SlidableAction(
-            onPressed: (context) {},
+            onPressed: (context) {
+              context.read<PostBloc>().add(GetOnePostEvent(id: post.id));
+              context.read<NavigationBloc>().add(const OpenEvent(page: DetailPage.id, data: {"status": Status.update}));
+            },
             backgroundColor: Colors.green,
             foregroundColor: Colors.white,
             icon: Icons.update,
