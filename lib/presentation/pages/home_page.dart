@@ -15,36 +15,35 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var navigationBloc = context.read<NavigationBloc>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Posts Bloc"),
-      ),
-      body: Stack(
-        children: const [
-          PostListView(),
-          LoadingView(),
-        ],
-      ),
-      floatingActionButton: BlocConsumer(
-        bloc: navigationBloc,
-        listener: (context, state) {
-          if(state is OpenSuccessState) {
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              print("Navigator.pushNamed(context, state.nextPage);");
-              Navigator.pushNamed(context, state.nextPage);
-            });
-          }
-        },
-        builder: (context, state) {
-          return FloatingActionButton(
+    return BlocConsumer<NavigationBloc, NavigationState>(
+      listener: (context, state) {
+        if(state is OpenSuccessState) {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            print("Navigator.pushNamed(context, state.nextPage);");
+            Navigator.pushNamed(context, state.nextPage);
+          });
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text("Posts Bloc"),
+          ),
+          body: Stack(
+            children: const [
+              PostListView(),
+              LoadingView(),
+            ],
+          ),
+          floatingActionButton: FloatingActionButton(
             onPressed: () {
               navigationBloc.add(const OpenEvent(page: DetailPage.id, data: {"status": Status.create}));
               debugPrint("Navigator worked and post bloc is closed: ${context.read<PostBloc>().isClosed}");
             },
             child: const Icon(Icons.add),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

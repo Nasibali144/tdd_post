@@ -61,74 +61,84 @@ class _DetailPageState extends State<DetailPage> {
         }
       },
       builder: (context, navigationState) {
-        return BlocConsumer<PostBloc, PostState>(
-          listener: (context, state) {
-            if(state is GetOnePostSuccessState) {
-              if (status.name == Status.update.name) {
-                getEditablePost(state);
-              }
-            }
-            if(state is Error) {
-              Utils.fireSnackBar(state.message, context);
-            }
-            if(state is CreatePostSuccessState || state is EditPostSuccessState) {
-              BlocProvider.of<PostBloc>(context).add(GetAllPostEvent());
+        return WillPopScope(
+          onWillPop: () async {
+            if(navigationState is BackSuccessState) {
+              return true;
+            } else {
               BlocProvider.of<NavigationBloc>(context).add(BackEvent());
+              return false;
             }
           },
-          builder: (context, state) {
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(status == Status.create ? "Post Create" : "Post Update"),
-                actions: [
-                  IconButton(
-                    onPressed: () => save(context),
-                    icon: const Icon(Icons.save),
-                    color: Colors.white,
-                    iconSize: 30,
-                  )
-                ],
-              ),
-              body: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextField(
-                            controller: titleController,
-                            decoration: const InputDecoration(hintText: "Title"),
-                            style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black),
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          TextField(
-                            controller: bodyController,
-                            decoration: const InputDecoration(hintText: "Content"),
-                            maxLines: null,
-                            style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black),
-                          ),
-                        ],
+          child: BlocConsumer<PostBloc, PostState>(
+            listener: (context, state) {
+              if(state is GetOnePostSuccessState) {
+                if (status.name == Status.update.name) {
+                  getEditablePost(state);
+                }
+              }
+              if(state is Error) {
+                Utils.fireSnackBar(state.message, context);
+              }
+              if(state is CreatePostSuccessState || state is EditPostSuccessState) {
+                BlocProvider.of<PostBloc>(context).add(GetAllPostEvent());
+                BlocProvider.of<NavigationBloc>(context).add(BackEvent());
+              }
+            },
+            builder: (context, state) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text(status == Status.create ? "Post Create" : "Post Update"),
+                  actions: [
+                    IconButton(
+                      onPressed: () => save(context),
+                      icon: const Icon(Icons.save),
+                      color: Colors.white,
+                      iconSize: 30,
+                    )
+                  ],
+                ),
+                body: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextField(
+                              controller: titleController,
+                              decoration: const InputDecoration(hintText: "Title"),
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black),
+                            ),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            TextField(
+                              controller: bodyController,
+                              decoration: const InputDecoration(hintText: "Content"),
+                              maxLines: null,
+                              style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  if(state is Loading) const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ],
-              ),
-            );
-          },
+                    if(state is Loading) const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         );
       },
     );
